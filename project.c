@@ -1,12 +1,37 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+bool* whoIsM3ana;
 
-void electionProcess(int *votes,int c, int v, int *result)
+void initializeArray(int *result, int siz)
 {
-
+    result = malloc(siz * sizeof(int));
+    int i;
+    for(i=0;i<siz;i++)
+        result[i]=0;
 }
 
+void electionProcess(int *votes,int v, int c, int *result)
+{
+    int vCounter, cCounter, voteTo;
+    initializeArray(result,c);
+    for(vCounter=0; vCounter<v; vCounter++)
+    {
+        for(int cCounter=0;cCounter<c;cCounter++)
+        {
+            if(whoIsM3ana[votes[(vCounter*c)+cCounter]])
+            {
+                voteTo = cCounter;
+            }
+        }
+        result[voteTo] += 1;
+    }
+}
+
+void generate(int c, int v, const char *fileName)
+{
+    FILE *fp = FILE *fopen(fileName, 'w');
+}
 int main()
 {
     int c , v;
@@ -14,12 +39,12 @@ int main()
 
     /**
         logic function
-            - election function electionProcess(votes, c, v, ); 3 mins
+            - election function electionProcess(votes, v, c, *result); 3 mins
             // c is number of candidates and v is number of votes in the votes send
             - file operations 35 mins
                 = readInitialization(fileName, *c, *v) 10 mins
                 = generate(c, v, fileName) (random) 5 mins
-                = readPartitions(startVoteNumber, partition, *votes): votes[v*c] 10 mins
+                = readPartitions(startVoteNumber, partition, c, *votes): votes[v*c] 10 mins
 
 
         parallel process
