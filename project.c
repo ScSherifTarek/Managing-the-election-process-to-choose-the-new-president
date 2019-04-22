@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #define DEFAULTFILENAME "data.txt"
-
+#
 void shuffle(int *array, size_t n);
 void generateVotes(int c, int v, const char *fileName);
 
@@ -86,35 +86,88 @@ void readInitialization(const char *fileName,int *c,int *v)
     fclose(fp);
 }
 
+
+void readPartitions(const char *fileName, int startVoteNumber,int partition,int c,int *votes)
+{
+    votes = malloc(partition*c);
+    long afterInitializePosition=2*sizeof(int)+2;
+    char line[256];
+
+    FILE *fp = fopen(fileName, "r");
+
+    // calculating the line size
+    fseek(fp,afterInitializePosition,0);
+    fgets(line, sizeof line, fp);
+    int lineSize = strlen(line) + 1; // 1 is the \n character
+
+
+    long firstLinePos = afterInitializePosition + lineSize * startVoteNumber;
+    fseek(fp,firstLinePos,0);
+    int i,j;
+    for(i = 0;i<partition;i++)
+    {
+        fscanf(fp,"%d",&votes[i*c+0]);
+        printf("%d",votes[i*c+0]);
+        for(j=1;j<c-1;j++)
+        {
+            fscanf(fp," %d",&votes[i*c+j]);
+            printf(" %d",votes[i*c+j]);
+        }
+        fscanf(fp," %d\n",&votes[i*c+c-1]);
+        printf(" %d\n", votes[i*c+c-1]);
+    }
+
+//    for(i=0;i<partition;i++)
+//    {
+//        for(j=0;j<c;j++)
+//        {
+//            printf("%d ",votes[i*c+j]);
+//        }
+//        printf("\n");
+//    }
+}
+
 int main()
 {
-    int c , v, option;
+    int c = 5 , v, option, partition = 3;
+    int *x;
     char fileName[256];
-    printf("0 = generate\n1 = read from file\nanyNumber = exit\n$ ");
-    scanf("%d",&option);
-    switch(option)
-    {
-    case 0:
-        printf("Enter # of candidates and # of voters like 'c v': $ ");
-        scanf("%d %d",&c,&v);
-        generateVotes(c,v,DEFAULTFILENAME);
-        break;
-    case 1:
-        printf("Enter File Name: $ ");
-        scanf("%s",fileName);
-        readInitialization(fileName, &c, &v);
-        break;
-    default:
-        return 0;
 
-    }
+    readPartitions(DEFAULTFILENAME, 5, partition, 5, x);
+    int i,j;
+//    for(i=0;i<partition;i++)
+//    {
+//        for(j=0;j<c;j++)
+//        {
+//            printf("%d ",x[i*c+j]);
+//        }
+//        printf("\n");
+//    }
+//    printf("0 = generate\n1 = read from file\nanyNumber = exit\n$ ");
+//    scanf("%d",&option);
+//    switch(option)
+//    {
+//    case 0:
+//        printf("Enter # of candidates and # of voters like 'c v': $ ");
+//        scanf("%d %d",&c,&v);
+//        generateVotes(c,v,DEFAULTFILENAME);
+//        break;
+//    case 1:
+//        printf("Enter File Name: $ ");
+//        scanf("%s",fileName);
+//        readInitialization(fileName, &c, &v);
+//        break;
+//    default:
+//        return 0;
+//    }
+//    printf("\n%d %d", c, v);
+
 //    scanf("%d %d %s",&c,&v, fileName);
 //    generateVotes(c,v,fileName);
 //
 //    scanf("%s",fileName);
 //    printf("%s",fileName);
 //    readInitialization(fileName, &c, &v);
-    printf("\n%d %d", c, v);
 
 //    readInitialization ("file.txt"  , &c , &v);
 
