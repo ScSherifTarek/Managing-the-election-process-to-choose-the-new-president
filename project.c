@@ -3,8 +3,16 @@
 #include <string.h>
 #include <stdbool.h>
 
-bool* whoIsM3ana;
+#define DEFAULTFILENAME "data.txt"
 
+void shuffle(int *array, size_t n);
+void generateVotes(int c, int v, const char *fileName);
+
+void initializeArray(int *result, int siz);
+void electionProcess(int *votes,int v, int c, int *result);
+void readInitialization(const char *fileName,int *c,int *v);
+
+bool* whoIsM3ana;
 void shuffle(int *array, size_t n)
 {
     if (n > 1)
@@ -71,13 +79,43 @@ void electionProcess(int *votes,int v, int c, int *result)
     }
 }
 
+void readInitialization(const char *fileName,int *c,int *v)
+{
+    FILE *fp = fopen(fileName, "r");
+    fscanf(fp,"%d\n%d\n", c, v);
+    fclose(fp);
+}
 
 int main()
 {
-    int c , v;
+    int c , v, option;
     char fileName[256];
-    scanf("%d %d %s",&c,&v, fileName);
-    generateVotes(c,v,fileName);
+    printf("0 = generate\n1 = read from file\nanyNumber = exit\n$ ");
+    scanf("%d",&option);
+    switch(option)
+    {
+    case 0:
+        printf("Enter # of candidates and # of voters like 'c v': $ ");
+        scanf("%d %d",&c,&v);
+        generateVotes(c,v,DEFAULTFILENAME);
+        break;
+    case 1:
+        printf("Enter File Name: $ ");
+        scanf("%s",fileName);
+        readInitialization(fileName, &c, &v);
+        break;
+    default:
+        return 0;
+
+    }
+//    scanf("%d %d %s",&c,&v, fileName);
+//    generateVotes(c,v,fileName);
+//
+//    scanf("%s",fileName);
+//    printf("%s",fileName);
+//    readInitialization(fileName, &c, &v);
+    printf("\n%d %d", c, v);
+
 //    readInitialization ("file.txt"  , &c , &v);
 
     /**
