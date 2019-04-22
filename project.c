@@ -86,99 +86,104 @@ void readInitialization(const char *fileName,int *c,int *v)
     fclose(fp);
 }
 
-
-void readPartitions(const char *fileName, int startVoteNumber,int partition,int c,int *votes)
+int getRecordSize(const char *fileName, int startByteOfRecord)
 {
-    votes = malloc(partition*c);
-    long afterInitializePosition=2*sizeof(int)+2;
+    static int lineSize = -1;
+    if(lineSize != -1)
+        return lineSize;
+
+    FILE *fp = fopen(fileName, "r");
+    // calculating the line size
     char line[256];
+    fseek(fp,startByteOfRecord,0);
+    fgets(line, sizeof line, fp);
+    lineSize = strlen(line) + 1; // 1 is the \n character
+    fclose(fp);
+    return lineSize;
+}
+
+void readRecord(const char *fileName, int recordIndex,int c,int *vote)
+{
+    static const long startByteOfRecord = 2*sizeof(int)+2;
 
     FILE *fp = fopen(fileName, "r");
 
     // calculating the line size
-    fseek(fp,afterInitializePosition,0);
-    fgets(line, sizeof line, fp);
-    int lineSize = strlen(line) + 1; // 1 is the \n character
+    int lineSize = getRecordSize(fileName, startByteOfRecord);
 
+    // seek to the line required
+    long firstByteInRecord = startByteOfRecord + lineSize * recordIndex;
+    fseek(fp,firstByteInRecord,0);
 
-    long firstLinePos = afterInitializePosition + lineSize * startVoteNumber;
-    fseek(fp,firstLinePos,0);
-    int i,j;
-    for(i = 0;i<partition;i++)
+    // read that line
+    int i;
+    fscanf(fp,"%d",&vote[0]);
+    for(i=1;i<c;i++)
     {
-        fscanf(fp,"%d",&votes[i*c+0]);
-        printf("%d",votes[i*c+0]);
-        for(j=1;j<c-1;j++)
-        {
-            fscanf(fp," %d",&votes[i*c+j]);
-            printf(" %d",votes[i*c+j]);
-        }
-        fscanf(fp," %d\n",&votes[i*c+c-1]);
-        printf(" %d\n", votes[i*c+c-1]);
+        fscanf(fp," %d",&vote[i]);
     }
-
-//    for(i=0;i<partition;i++)
-//    {
-//        for(j=0;j<c;j++)
-//        {
-//            printf("%d ",votes[i*c+j]);
-//        }
-//        printf("\n");
-//    }
+    fclose(fp);
 }
 
 int main()
 {
-    int c = 5 , v, option, partition = 3;
+    int c = 5 , v, option, partition = 3, j;
     int *x;
     char fileName[256];
+    int *vote = malloc(c);
 
-    readPartitions(DEFAULTFILENAME, 5, partition, 5, x);
-    int i,j;
-//    for(i=0;i<partition;i++)
-//    {
-//        for(j=0;j<c;j++)
-//        {
-//            printf("%d ",x[i*c+j]);
-//        }
-//        printf("\n");
-//    }
-//    printf("0 = generate\n1 = read from file\nanyNumber = exit\n$ ");
-//    scanf("%d",&option);
-//    switch(option)
-//    {
-//    case 0:
-//        printf("Enter # of candidates and # of voters like 'c v': $ ");
-//        scanf("%d %d",&c,&v);
-//        generateVotes(c,v,DEFAULTFILENAME);
-//        break;
-//    case 1:
-//        printf("Enter File Name: $ ");
-//        scanf("%s",fileName);
-//        readInitialization(fileName, &c, &v);
-//        break;
-//    default:
-//        return 0;
-//    }
-//    printf("\n%d %d", c, v);
+    readRecord(DEFAULTFILENAME, 0 , c, vote);
+    for(j=0;j<c;j++)
+    {
+        printf("%d ",vote[j]);
+    }
+    printf("\n");
 
-//    scanf("%d %d %s",&c,&v, fileName);
-//    generateVotes(c,v,fileName);
-//
-//    scanf("%s",fileName);
-//    printf("%s",fileName);
-//    readInitialization(fileName, &c, &v);
+    readRecord(DEFAULTFILENAME, 5 , c, vote);
+    for(j=0;j<c;j++)
+    {
+        printf("%d ",vote[j]);
+    }
+    printf("\n");
 
-//    readInitialization ("file.txt"  , &c , &v);
+    readRecord(DEFAULTFILENAME, 49999 , c, vote);
+    for(j=0;j<c;j++)
+    {
+        printf("%d ",vote[j]);
+    }
+    printf("\n");
+
+
+    /** A simple main for the reading operation in the beginning
+    //    printf("\n");
+    //    printf("0 = generate\n1 = read from file\nanyNumber = exit\n$ ");
+    //    scanf("%d",&option);
+    //    switch(option)
+    //    {
+    //    case 0:
+    //        printf("Enter # of candidates and # of voters like 'c v': $ ");
+    //        scanf("%d %d",&c,&v);
+    //        generateVotes(c,v,DEFAULTFILENAME);
+    //        break;
+    //    case 1:
+    //        printf("Enter File Name: $ ");
+    //        scanf("%s",fileName);
+    //        readInitialization(fileName, &c, &v);
+    //        break;
+    //    default:
+    //        return 0;
+    //    }
+    //    printf("\n%d %d", c, v);
+    **/
 
     /**
         logic function
-            - election function electionProcess(votes, v, c, *result); 3 mins
+            - election function electionProcess(votes, v, c, *result);
             // c is number of candidates and v is number of votes in the votes send
             - file operations 35 mins
-                = readInitialization(fileName, *c, *v) 10 mins
-                = generateVotes(c, v, fileName) (random) 5 mins
-                = readPartitions(startVoteNumber, partition, c, *votes): votes[v*c] 10 mins
+                = readInitialization(fileName, *c, *v)
+                = generateVotes(c, v, fileName) (random)
+                = readRecord(startVoteNumber, recordIndex, c, *vote): vote[c]
 
 
         parallel process
