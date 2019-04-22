@@ -9,7 +9,8 @@ int main()
 
     /**
         logic function
-            - election function electionProcess(votes); 3 mins
+            - election function electionProcess(votes, c, v); 3 mins
+            // c is number of candidates and v is number of votes in the votes send
             - file operations 35 mins
                 = readInitialization(fileName, &c, &v) 10 mins
                 = generate(c, v, fileName) (random) 5 mins
