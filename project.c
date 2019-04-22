@@ -2,19 +2,24 @@
 #include <stdlib.h>
 
 
+void electionProcess(int *votes,int c, int v, int *result)
+{
+
+}
+
 int main()
 {
     int c , v;
-    readInitialization ("file.txt"  , &c , &v) ;
+//    readInitialization ("file.txt"  , &c , &v);
 
     /**
         logic function
-            - election function electionProcess(votes, c, v); 3 mins
+            - election function electionProcess(votes, c, v, ); 3 mins
             // c is number of candidates and v is number of votes in the votes send
             - file operations 35 mins
-                = readInitialization(fileName, &c, &v) 10 mins
+                = readInitialization(fileName, *c, *v) 10 mins
                 = generate(c, v, fileName) (random) 5 mins
-                = readPartitions(startVoteNumber, partition): votes[v*c] 10 mins
+                = readPartitions(startVoteNumber, partition, *votes): votes[v*c] 10 mins
 
 
         parallel process
