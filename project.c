@@ -1,7 +1,54 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 
 bool* whoIsM3ana;
+
+void shuffle(int *array, size_t n)
+{
+    if (n > 1)
+    {
+        size_t i;
+        for (i = 0; i < n - 1; i++)
+        {
+          size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
+          int t = array[j];
+          array[j] = array[i];
+          array[i] = t;
+        }
+    }
+}
+
+void generate(int c, int v, const char *fileName)
+{
+    FILE *fp = fopen(fileName, "w");
+    fprintf(fp,"%d\n",c);
+    fprintf(fp,"%d\n",v);
+
+    int* vote = malloc(c*sizeof(int));
+    int i;
+
+    for(i=0;i<c;i++)
+    {
+        vote[i] = i+1;
+    }
+    while(v--)
+    {
+        shuffle(vote,c);
+        fprintf(fp,"%d",vote[0]);
+        printf("%d",vote[0]);
+        for(i=1;i<c;i++)
+        {
+            fprintf(fp," %d",vote[i]);
+            printf(" %d",vote[i]);
+
+        }
+        fprintf(fp,"\n");
+        printf("\n");
+    }
+    fclose(fp);
+}
 
 void initializeArray(int *result, int siz)
 {
@@ -17,7 +64,7 @@ void electionProcess(int *votes,int v, int c, int *result)
     initializeArray(result,c);
     for(vCounter=0; vCounter<v; vCounter++)
     {
-        for(int cCounter=0;cCounter<c;cCounter++)
+        for(cCounter=0;cCounter<c;cCounter++)
         {
             if(whoIsM3ana[votes[(vCounter*c)+cCounter]])
             {
@@ -28,13 +75,13 @@ void electionProcess(int *votes,int v, int c, int *result)
     }
 }
 
-void generate(int c, int v, const char *fileName)
-{
-    FILE *fp = FILE *fopen(fileName, 'w');
-}
+
 int main()
 {
     int c , v;
+    char fileName[256];
+    scanf("%d %d %s",&c,&v, fileName);
+    generate(c,v,fileName);
 //    readInitialization ("file.txt"  , &c , &v);
 
     /**
