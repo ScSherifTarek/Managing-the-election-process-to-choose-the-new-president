@@ -20,7 +20,7 @@ void shuffle(int *array, size_t n)
     }
 }
 
-void generate(int c, int v, const char *fileName)
+void generateVotes(int c, int v, const char *fileName)
 {
     FILE *fp = fopen(fileName, "w");
     fprintf(fp,"%d\n",c);
@@ -37,15 +37,11 @@ void generate(int c, int v, const char *fileName)
     {
         shuffle(vote,c);
         fprintf(fp,"%d",vote[0]);
-        printf("%d",vote[0]);
         for(i=1;i<c;i++)
         {
             fprintf(fp," %d",vote[i]);
-            printf(" %d",vote[i]);
-
         }
         fprintf(fp,"\n");
-        printf("\n");
     }
     fclose(fp);
 }
@@ -81,7 +77,7 @@ int main()
     int c , v;
     char fileName[256];
     scanf("%d %d %s",&c,&v, fileName);
-    generate(c,v,fileName);
+    generateVotes(c,v,fileName);
 //    readInitialization ("file.txt"  , &c , &v);
 
     /**
@@ -90,7 +86,7 @@ int main()
             // c is number of candidates and v is number of votes in the votes send
             - file operations 35 mins
                 = readInitialization(fileName, *c, *v) 10 mins
-                = generate(c, v, fileName) (random) 5 mins
+                = generateVotes(c, v, fileName) (random) 5 mins
                 = readPartitions(startVoteNumber, partition, c, *votes): votes[v*c] 10 mins
 
 
@@ -140,6 +136,5 @@ int main()
                 master sum all the results to one and select the winner and output it
 
     **/
-    printf("Hello world!\n");
     return 0;
 }
