@@ -88,7 +88,7 @@ void readInitialization(const char *fileName,int *c,int *v)
 
 int getRecordSize(const char *fileName, int startByteOfRecord)
 {
-    static int lineSize = -1;
+    static long lineSize = -1;
     if(lineSize != -1)
         return lineSize;
 
@@ -102,17 +102,46 @@ int getRecordSize(const char *fileName, int startByteOfRecord)
     return lineSize;
 }
 
-void readRecord(const char *fileName, int recordIndex,int c,int *vote)
+int countLength(int e)
 {
-    static const long startByteOfRecord = 2*sizeof(int)+2;
+    if(e == 0)
+        return 1;
+
+    int counter = 0;
+    while(e > 0)
+    {
+        e /= 10;
+        counter++;
+    }
+    return counter;
+}
+int calcStartByte(const char *fileName)
+{
+    static int start = -1;
+    if(start != -1)
+        return start;
+
 
     FILE *fp = fopen(fileName, "r");
+    char line[256];
+    fgets(line, sizeof line, fp);
+    char lineTwo[256];
+    fgets(lineTwo, sizeof lineTwo, fp);
+    start = ftell(fp);
+    fclose(fp);
+    return start;
+}
+void readRecord(const char *fileName, int recordIndex,int c, int v,int *vote)
+{
+    int startByteOfRecord = calcStartByte(fileName);
 
     // calculating the line size
     int lineSize = getRecordSize(fileName, startByteOfRecord);
 
     // seek to the line required
     long firstByteInRecord = startByteOfRecord + lineSize * recordIndex;
+
+    FILE *fp = fopen(fileName, "r");
     fseek(fp,firstByteInRecord,0);
 
     // read that line
@@ -128,52 +157,52 @@ void readRecord(const char *fileName, int recordIndex,int c,int *vote)
 int main()
 {
     int c = 5 , v, option, partition = 3, j;
-    int *x;
     char fileName[256];
     int *vote = malloc(c);
+    printf("0 = generate\n1 = read from file\nanyNumber = exit\n$ ");
+    scanf("%d",&option);
+    switch(option)
+    {
+    case 0:
+        printf("Enter # of candidates and # of voters like 'c v': $ ");
+        scanf("%d %d",&c,&v);
+        generateVotes(c,v,DEFAULTFILENAME);
+        break;
+    case 1:
+        printf("Enter File Name: $ ");
+        scanf("%s",fileName);
+        readInitialization(fileName, &c, &v);
+        break;
+    default:
+        return 0;
+    }
+    printf("\n%d %d\n", c, v);
 
-    readRecord(DEFAULTFILENAME, 0 , c, vote);
+    printf("\n");
+    readRecord(DEFAULTFILENAME, 0 , c, v, vote);
     for(j=0;j<c;j++)
     {
         printf("%d ",vote[j]);
     }
     printf("\n");
 
-    readRecord(DEFAULTFILENAME, 5 , c, vote);
+    readRecord(DEFAULTFILENAME, 1 , c, v, vote);
     for(j=0;j<c;j++)
     {
         printf("%d ",vote[j]);
     }
     printf("\n");
-
-    readRecord(DEFAULTFILENAME, 49999 , c, vote);
-    for(j=0;j<c;j++)
-    {
-        printf("%d ",vote[j]);
-    }
+//
+//    readRecord(DEFAULTFILENAME, 49999 , c, v, vote);
+//    for(j=0;j<c;j++)
+//    {
+//        printf("%d ",vote[j]);
+//    }
     printf("\n");
 
 
     /** A simple main for the reading operation in the beginning
-    //    printf("\n");
-    //    printf("0 = generate\n1 = read from file\nanyNumber = exit\n$ ");
-    //    scanf("%d",&option);
-    //    switch(option)
-    //    {
-    //    case 0:
-    //        printf("Enter # of candidates and # of voters like 'c v': $ ");
-    //        scanf("%d %d",&c,&v);
-    //        generateVotes(c,v,DEFAULTFILENAME);
-    //        break;
-    //    case 1:
-    //        printf("Enter File Name: $ ");
-    //        scanf("%s",fileName);
-    //        readInitialization(fileName, &c, &v);
-    //        break;
-    //    default:
-    //        return 0;
-    //    }
-    //    printf("\n%d %d", c, v);
+
     **/
 
     /**
