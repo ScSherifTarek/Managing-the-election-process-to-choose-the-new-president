@@ -4,12 +4,12 @@
 #include <stdbool.h>
 
 #define DEFAULTFILENAME "data.txt"
-#
+
 void shuffle(int *array, size_t n);
 void generateVotes(int c, int v, const char *fileName);
 
 void initializeArray(int *result, int siz);
-void electionProcess(int *votes,int v, int c, int *result);
+void electionProcess(int *votes, int c, int *result);
 void readInitialization(const char *fileName,int *c,int *v);
 
 bool* whoIsM3ana;
@@ -56,27 +56,33 @@ void generateVotes(int c, int v, const char *fileName)
 
 void initializeArray(int *result, int siz)
 {
-    result = malloc(siz * sizeof(int));
     int i;
     for(i=0;i<siz;i++)
         result[i]=0;
 }
 
-void electionProcess(int *votes,int v, int c, int *result)
+void initializeArrayTrue(bool *result, int siz)
 {
-    int vCounter, cCounter, voteTo;
-    initializeArray(result,c);
-    for(vCounter=0; vCounter<v; vCounter++)
-    {
+    int i;
+    for(i=0;i<siz;i++)
+        result[i]=true;
+}
+
+void electionProcess(int *vote,int c, int *result)
+{
+    int cCounter, voteTo;
+//    for(vCounter=0; vCounter<v; vCounter++)
+//    {
         for(cCounter=0;cCounter<c;cCounter++)
         {
-            if(whoIsM3ana[votes[(vCounter*c)+cCounter]])
+            if(whoIsM3ana[vote[cCounter]-1])
             {
-                voteTo = cCounter;
+                voteTo = vote[cCounter] - 1;
+                break;
             }
         }
         result[voteTo] += 1;
-    }
+//    }
 }
 
 void readInitialization(const char *fileName,int *c,int *v)
@@ -154,11 +160,22 @@ void readRecord(const char *fileName, int recordIndex,int c, int v,int *vote)
     fclose(fp);
 }
 
+void printArray(int* arr, int siz)
+{
+    int i;
+    for(i=0 ;i<siz;i++)
+    {
+        printf("%d ",arr[i]);
+    }
+    printf("\n");
+}
+
+
 int main()
 {
-    int c = 5 , v, option, partition = 3, j;
+    int c = 5 , v, option, partition = 3, i;
     char fileName[256];
-    int *vote = malloc(c);
+
     printf("0 = generate\n1 = read from file\nanyNumber = exit\n$ ");
     scanf("%d",&option);
     switch(option)
@@ -178,26 +195,44 @@ int main()
     }
     printf("\n%d %d\n", c, v);
 
-    printf("\n");
-    readRecord(DEFAULTFILENAME, 0 , c, v, vote);
-    for(j=0;j<c;j++)
+    int *vote   = malloc(c*sizeof(int));
+    int *result = malloc(c * sizeof(int));
+    whoIsM3ana  = malloc(c * sizeof(bool));
+    initializeArray(result,c);
+    initializeArrayTrue(whoIsM3ana,c);
+
+    whoIsM3ana[2] = false;
+
+    for(i=0 ;i<c;i++)
     {
-        printf("%d ",vote[j]);
+        printf("%s ", whoIsM3ana[i] ? "true" : "false");
     }
+
+    printf("\n");
+    printf("\n");
+
+    readRecord(DEFAULTFILENAME, 0 , c, v, vote);
+
+    printf("Vote #%d: ",0);
+    printArray(vote,c);
+
+    electionProcess(vote,c,result);
+
+    printf("Result: ");
+
+    printArray(result,c);
+
     printf("\n");
 
     readRecord(DEFAULTFILENAME, 1 , c, v, vote);
-    for(j=0;j<c;j++)
-    {
-        printf("%d ",vote[j]);
-    }
+    printf("Vote #%d: ",1);
+    printArray(vote,c);
+
+    electionProcess(vote,c,result);
+    electionProcess(vote,c,result);
+    printf("Result: ",0);
+    printArray(result,c);
     printf("\n");
-//
-//    readRecord(DEFAULTFILENAME, 49999 , c, v, vote);
-//    for(j=0;j<c;j++)
-//    {
-//        printf("%d ",vote[j]);
-//    }
     printf("\n");
 
 
@@ -207,7 +242,7 @@ int main()
 
     /**
         logic function
-            - election function electionProcess(votes, v, c, *result);
+            - election function electionProcess(votes, c, *result);
             // c is number of candidates and v is number of votes in the votes send
             - file operations 35 mins
                 = readInitialization(fileName, *c, *v)
